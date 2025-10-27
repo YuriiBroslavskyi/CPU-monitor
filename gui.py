@@ -29,6 +29,8 @@
 
 import customtkinter
 from system_info import SystemInfo
+from utils import Utils
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class CPUMonitorGUI(customtkinter.CTk):
     def __init__(self):
@@ -50,6 +52,9 @@ class CPUMonitorGUI(customtkinter.CTk):
         self.cpu_freq_label = customtkinter.CTkLabel(self, text=f"CPU frequency: Loading...", fg_color="transparent")
         self.cpu_usage_label = customtkinter.CTkLabel(self, text=f"CPU usage: Loading...", fg_color="transparent")
 
+        self.quit_button = customtkinter.CTkButton(self, text="Quit", command = self.destroy)
+
+
         self.cpu_brand_label.pack(side="top")
         self.cpu_arch_label.pack(side="top")
         self.cpu_bits_label.pack(side="top")
@@ -60,13 +65,31 @@ class CPUMonitorGUI(customtkinter.CTk):
         self.cpu_logical_cores_label.pack(side="top")
         self.cpu_freq_label.pack(side="top")
         self.cpu_usage_label.pack(side="top")
+        self.quit_button.pack(side="bottom")
 
+
+        self.showBarChart()
         self.update_dynamic_info()
+        self.refresh_chart()
 
     def update_dynamic_info(self):
         dynamic_sys_info = SystemInfo().get_dynamic_info()
         self.cpu_freq_label.configure(text=f"CPU frequency: {dynamic_sys_info["cpu_freq"]:.2f} MHz")
-        self.cpu_usage_label.configure(text=f"CPU usage: {dynamic_sys_info["cpu_usage"]:.1f} %")
+        self.cpu_usage_label.configure(text=f"CPU usage: {dynamic_sys_info["cpu_usage"]} %")
 
+        # Update Cpu usage chart
+        self.refresh_chart()
         # Schedule next update after 1000ms
         self.after(1000, self.update_dynamic_info)
+
+    def showBarChart(self):
+        fig = Utils().createDiagram()
+        self.canvas = FigureCanvasTkAgg(fig, master=self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(fill="both", expand=True, pady=10)
+
+    def refresh_chart(self):
+        # Destroy old canvas and redraw
+        self.canvas.get_tk_widget().destroy()
+        self.showBarChart()
+        #self.after(1000, self.showBarChart)

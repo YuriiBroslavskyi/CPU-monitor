@@ -57,7 +57,7 @@ class SystemInfo:
 
     def get_dynamic_info(self):
         self.cpu_freq = psutil.cpu_freq().current
-        self.cpu_usage = psutil.cpu_percent()
+        self.cpu_usage = psutil.cpu_percent(percpu=True)
 
         return {
             "cpu_freq": self.cpu_freq,
