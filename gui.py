@@ -50,9 +50,8 @@ class CPUMonitorGUI(customtkinter.CTk):
         self.cpu_logical_cores_label = customtkinter.CTkLabel(self, text=f"CPU logical cores: {static_sys_info["logical_cores"]}", fg_color="transparent")
 
         self.cpu_freq_label = customtkinter.CTkLabel(self, text=f"CPU frequency: Loading...", fg_color="transparent")
-        self.cpu_freq_opt_menu = customtkinter.CTkOptionMenu(self, values=["MHz", "GHz"], fg_color ="grey", button_color ="grey", command=Utils().convMHzToGHz())
+        self.cpu_freq_opt_menu = customtkinter.CTkOptionMenu(self, values=["MHz", "GHz"], fg_color ="grey", button_color ="grey")
 
-        self.cpu_usage_label = customtkinter.CTkLabel(self, text=f"CPU usage: Loading...", fg_color="transparent")
 
         self.cpu_rating_label = customtkinter.CTkLabel(self, text=f"CPU rating: Click the button!", fg_color="transparent")
         self.cpu_rating_button = customtkinter.CTkButton(self, text="CPU Rating", fg_color = "#C0392B", command= self.show_cpu_multithread_rating)
@@ -69,7 +68,6 @@ class CPUMonitorGUI(customtkinter.CTk):
         self.cpu_logical_cores_label.pack(side="top")
         self.cpu_freq_label.pack(side="top")
         self.cpu_freq_opt_menu.pack(side="top")
-        self.cpu_usage_label.pack(side="top")
         self.cpu_rating_label.pack(side="top")
         self.cpu_rating_button.pack(side="top")
         self.quit_button.pack(side="bottom")
@@ -80,17 +78,22 @@ class CPUMonitorGUI(customtkinter.CTk):
         self.refresh_chart()
 
     def update_dynamic_info(self):
-        dynamic_sys_info = SystemInfo().get_dynamic_info()
-        self.cpu_freq_label.configure(text=f"CPU frequency: {dynamic_sys_info["cpu_freq"]} MHz")
-        # self.cpu_freq_opt_menu.configure(values=[f"{dynamic_sys_info["cpu_freq"]}", f"{dynamic_sys_info["cpu_freq"]}"])
-        #self.cpu_freq_option_menu = customtkinter.CTkOptionMenu(self, values=[self.conf_cpu_freq, self.conf_cpu_freq * 10000000])
 
-        self.cpu_usage_label.configure(text=f"CPU usage: {dynamic_sys_info["cpu_usage"]} %")
+        self.conf_cpu_freq()
 
         # Update Cpu usage chart
         self.refresh_chart()
         # Schedule next update after 1000ms
-        self.after(1000, self.update_dynamic_info)
+        self.after(500, self.update_dynamic_info)
+
+    def conf_cpu_freq(self):
+        dynamic_sys_info = SystemInfo().get_dynamic_info()
+        print(dynamic_sys_info["cpu_freq"])
+        if self.cpu_freq_opt_menu.get() == "MHz":
+            self.cpu_freq_label.configure(text=f"CPU frequency: {dynamic_sys_info["cpu_freq"]} MHz")
+        else:
+            self.cpu_freq_label.configure(text=f"CPU frequency: {dynamic_sys_info["cpu_freq"] / 1000} GHz")
+
 
     def showBarChart(self):
         fig = Utils().createDiagram()

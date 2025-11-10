@@ -39,10 +39,10 @@ class Utils:
         # Return the figure instead of showing it
         return fig
 
-    def convMHzToGHz(self):
-        dynamic_sys_info = SystemInfo().get_dynamic_info()
-
-        return dynamic_sys_info["cpu_freq"] * 1e-9
+    # def convMHzToGHz(self):
+    #     dynamic_sys_info = SystemInfo().get_dynamic_info()
+    #
+    #     return dynamic_sys_info["cpu_freq"] * 1e-9
 
     def get_cpu_multithread_rating(self):
         cpu_name = cpuinfo.get_cpu_info().get('brand_raw', 'CPU name not available')
