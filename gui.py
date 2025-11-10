@@ -35,7 +35,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 class CPUMonitorGUI(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.geometry("800x500")
+        self.geometry("1200x1080")
         self.title("CPU monitor")
         static_sys_info = SystemInfo().get_static_info()
         dynamic_sys_info = SystemInfo().get_dynamic_info()
@@ -50,8 +50,12 @@ class CPUMonitorGUI(customtkinter.CTk):
         self.cpu_logical_cores_label = customtkinter.CTkLabel(self, text=f"CPU logical cores: {static_sys_info["logical_cores"]}", fg_color="transparent")
 
         self.cpu_freq_label = customtkinter.CTkLabel(self, text=f"CPU frequency: Loading...", fg_color="transparent")
+        self.cpu_freq_opt_menu = customtkinter.CTkOptionMenu(self, values=["MHz", "GHz"], fg_color ="grey", button_color ="grey", command=Utils().convMHzToGHz())
+
         self.cpu_usage_label = customtkinter.CTkLabel(self, text=f"CPU usage: Loading...", fg_color="transparent")
 
+        self.cpu_rating_label = customtkinter.CTkLabel(self, text=f"CPU rating: Click the button!", fg_color="transparent")
+        self.cpu_rating_button = customtkinter.CTkButton(self, text="CPU Rating", fg_color = "#C0392B", command= self.show_cpu_multithread_rating)
         self.quit_button = customtkinter.CTkButton(self, text="Quit", command = self.destroy)
 
 
@@ -64,7 +68,10 @@ class CPUMonitorGUI(customtkinter.CTk):
         self.cpu_physical_cores_label.pack(side="top")
         self.cpu_logical_cores_label.pack(side="top")
         self.cpu_freq_label.pack(side="top")
+        self.cpu_freq_opt_menu.pack(side="top")
         self.cpu_usage_label.pack(side="top")
+        self.cpu_rating_label.pack(side="top")
+        self.cpu_rating_button.pack(side="top")
         self.quit_button.pack(side="bottom")
 
 
@@ -74,7 +81,10 @@ class CPUMonitorGUI(customtkinter.CTk):
 
     def update_dynamic_info(self):
         dynamic_sys_info = SystemInfo().get_dynamic_info()
-        self.cpu_freq_label.configure(text=f"CPU frequency: {dynamic_sys_info["cpu_freq"]:.2f} MHz")
+        self.cpu_freq_label.configure(text=f"CPU frequency: {dynamic_sys_info["cpu_freq"]} MHz")
+        # self.cpu_freq_opt_menu.configure(values=[f"{dynamic_sys_info["cpu_freq"]}", f"{dynamic_sys_info["cpu_freq"]}"])
+        #self.cpu_freq_option_menu = customtkinter.CTkOptionMenu(self, values=[self.conf_cpu_freq, self.conf_cpu_freq * 10000000])
+
         self.cpu_usage_label.configure(text=f"CPU usage: {dynamic_sys_info["cpu_usage"]} %")
 
         # Update Cpu usage chart
@@ -93,3 +103,6 @@ class CPUMonitorGUI(customtkinter.CTk):
         self.canvas.get_tk_widget().destroy()
         self.showBarChart()
         #self.after(1000, self.showBarChart)
+
+    def show_cpu_multithread_rating(self):
+        self.cpu_rating_label.configure(text=f"CPU rating: {Utils().get_cpu_multithread_rating()}", fg_color="#2ECC71")

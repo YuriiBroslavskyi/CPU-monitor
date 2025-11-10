@@ -10,6 +10,12 @@ import numpy as np
 from system_info import SystemInfo
 import matplotlib.pyplot as plt
 
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import cpuinfo
+
+
 class Utils:
     def createDiagram(self):
         dynamic_sys_info = SystemInfo().get_dynamic_info()
@@ -32,3 +38,32 @@ class Utils:
 
         # Return the figure instead of showing it
         return fig
+
+    def convMHzToGHz(self):
+        dynamic_sys_info = SystemInfo().get_dynamic_info()
+
+        return dynamic_sys_info["cpu_freq"] * 1e-9
+
+    def get_cpu_multithread_rating(self):
+        cpu_name = cpuinfo.get_cpu_info().get('brand_raw', 'CPU name not available')
+        encoded_cpu_name = urllib.parse.quote(cpu_name)
+        base_url = "https://www.cpubenchmark.net/cpu.php?cpu="
+        url = f"{base_url}{encoded_cpu_name}"
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                          '(KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'
+        }
+
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            rating_element = soup.find(string="Multithread Rating")
+            if rating_element:
+                rating_value = rating_element.find_next().text.strip()
+                print(rating_value)
+                return rating_value
+            else:
+                return f"Unable to find the multi-thread rating for {cpu_name} on the page."
+        else:
+            return f"Failed to retrieve the page. Status code: {response.status_code}"
